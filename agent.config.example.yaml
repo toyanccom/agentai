@@ -1,0 +1,54 @@
+# Example configuration for the social agent.
+wordpress:
+  site_url: "https://yenifikirler.org"
+  feed_path: "/feed"
+  poll_interval: 600
+  max_items: 10
+
+# Set dry_run true while testing so that the agent only logs actions.
+dry_run: true
+state_file: ".agent_state.json"
+
+xcom:
+  enabled: false
+  access_token: ""
+
+linkedin:
+  enabled: false
+  access_token: ""
+  organization_urn: "urn:li:organization:123456"
+
+facebook:
+  enabled: false
+  access_token: ""
+  page_id: ""
+
+instagram:
+  enabled: false
+  access_token: ""
+  ig_user_id: ""
+
+pinterest:
+  enabled: false
+  access_token: ""
+  board_id: ""
+
+tiktok:
+  enabled: false
+  access_token: ""
+  advertiser_id: ""
+  extra:
+    video_url: "https://yenifikirler.org/wp-content/uploads/social-promo.mp4"
+
+images:
+  enabled: true
+  api_key: "${OPENAI_API_KEY}"
+  model: "gpt-image-1"
+  size: "1024x1024"
+  prompt_template: >-
+    Ultra realistic, modern promotional illustration for the article titled '{title}'.
+    Focus on these topics: {categories}. Avoid text in the image. Summary: {summary}.
+  alt_text_template: >-
+    AI generated illustration depicting the themes of '{title}' with focus on {categories}.
+  output_dir: "./generated_images"
+  download_remote_assets: true
