@@ -33,15 +33,19 @@ class DistributionDispatcher:
     async def distribute(self, articles: Iterable[Article]) -> None:
         """Send articles to each configured platform."""
 
+        state_updated = False
         for article in articles:
             if self.state.has_been_posted(article.identifier):
                 logger.debug("Skipping %s because it is already posted", article.identifier)
                 continue
-            await self._share_article(article)
-            self.state.mark_posted([article.identifier])
-        self.state.save()
+            shared = await self._share_article(article)
+            if shared:
+                self.state.mark_posted([article.identifier])
+                state_updated = True
+        if state_updated:
+            self.state.save()
 
-    async def _share_article(self, article: Article) -> None:
+    async def _share_article(self, article: Article) -> bool:
         image: GeneratedImage | None = None
         if self.image_generator:
             try:
@@ -57,8 +61,12 @@ class DistributionDispatcher:
         ]
         if not tasks:
             logger.info("No platforms enabled, skipping article: %s", article.title)
-            return
+            return False
         await asyncio.gather(*tasks, return_exceptions=False)
+        if self.dry_run:
+            logger.debug("Dry run enabled, not marking article '%s' as posted", article.identifier)
+            return False
+        return True
 
 
 class BasePlatform:
