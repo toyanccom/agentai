@@ -53,6 +53,13 @@ Kod Python 3.11+ sürümü ile test edilmiştir. Kod stilini kontrol etmek için
 python -m compileall social_agent
 ```
 
+Testleri çalıştırmak için önce isteğe bağlı test bağımlılıklarını kurun ve ardından `pytest` çalıştırın:
+
+```bash
+pip install -e .[test]
+pytest
+```
+
 ## Güvenlik Notları
 
 - API erişim anahtarlarını git deposuna eklemeyin.
