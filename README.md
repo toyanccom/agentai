@@ -79,79 +79,98 @@ satisfaction, and frees human agents to focus on edge cases.
   }
   ```
 
-## Embedding in WordPress
+## WordPress: fastest way to go live
 
-Use the `WordPressWebhookAdapter` to expose the assistant through a lightweight
-Python endpoint that your WordPress site can call from a custom plugin or a
-no-code automation tool like WP Webhooks.
+Expose the assistant without writing boilerplate by launching the bundled
+webhook server:
 
-```python
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-from src import WordPressWebhookAdapter
-
-adapter = WordPressWebhookAdapter(shared_secret="super-secret-token")
-
-
-class Handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
-        response = adapter.dispatch(body, headers=self.headers)
-
-        payload = response.to_http()
-        self.send_response(payload["status_code"])
-        for header, value in payload["headers"].items():
-            self.send_header(header, value)
-        self.end_headers()
-        self.wfile.write(payload["body"].encode("utf-8"))
-
-
-if __name__ == "__main__":
-    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+```bash
+python -m src.servers wordpress --host 0.0.0.0 --port 8080 --shared-secret your-wordpress-secret
 ```
 
-Configure your WordPress automation to send a JSON payload with `intent`,
-`language` (or `locale`), and optional `context` values. The shared secret is
-used to sign requests via the `X-Assistant-Signature` header and prevents
-unauthorized calls.
+The server expects JSON payloads containing `intent`, `language` (or `locale`),
+and optional `context` values. Pair it with one of these turnkey WordPress
+configurations:
 
-## Embedding in Shopify
+1. **WP Webhooks** – Create a "Send Data" action pointing to your server.
+   - Method: `POST`
+   - Headers: `X-Assistant-Signature: <shared-secret>`
+   - Body (JSON):
 
-Shopify app proxies and theme extensions can call the
-`ShopifyAppProxyAdapter` in a similar fashion. Shopify signs requests via the
-`X-Shopify-Hmac-Sha256` header so you only need to provide the shared secret
-issued to your custom app.
+     ```json
+     {
+       "intent": "order_status",
+       "locale": "en-US",
+       "context": {"order_id": "A1234", "status": "on the way", "eta": "May 18"}
+     }
+     ```
 
-```python
-from http.server import BaseHTTPRequestHandler, HTTPServer
+2. **Custom plugin** – Drop the snippet below into `functions.php` or a small
+   plugin to forward contact form submissions:
 
-from src import ShopifyAppProxyAdapter
+   ```php
+   add_action('wp_ajax_nopriv_support_assistant', 'forward_to_assistant');
+   add_action('wp_ajax_support_assistant', 'forward_to_assistant');
 
-adapter = ShopifyAppProxyAdapter(shared_secret="shopify-shared-secret")
+   function forward_to_assistant() {
+       $response = wp_remote_post('https://your-server.example.com', [
+           'headers' => [
+               'Content-Type' => 'application/json',
+               'X-Assistant-Signature' => 'your-wordpress-secret',
+           ],
+           'body' => wp_json_encode([
+               'intent' => sanitize_text_field($_POST['intent']),
+               'language' => get_locale(),
+               'context' => ['order_id' => sanitize_text_field($_POST['order_id'])],
+           ]),
+       ]);
 
+       wp_send_json(wp_remote_retrieve_body($response));
+   }
+   ```
 
-class Handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
-        response = adapter.dispatch(body, headers=self.headers)
+The shared secret protects the webhook via the `X-Assistant-Signature` header,
+while the adapter returns a JSON response ready to display in your WordPress
+theme or plugin UI.
 
-        payload = response.to_http()
-        self.send_response(payload["status_code"])
-        for header, value in payload["headers"].items():
-            self.send_header(header, value)
-        self.end_headers()
-        self.wfile.write(payload["body"].encode("utf-8"))
+## Shopify: instant storefront integration
 
+Launch the Shopify-ready server with a single command:
 
-if __name__ == "__main__":
-    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+```bash
+python -m src.servers shopify --host 0.0.0.0 --port 8080 --shared-secret your-shopify-secret
 ```
 
-Incoming Shopify requests include `locale`, `customer_locale`, or
-`shop_locale` fields that are automatically mapped to the assistant's
-language codes. Provide the request context (for example, `{"order_id": "A1"}`)
-to personalize the reply. The response body mirrors the CLI payload and can be
-rendered directly within your theme or storefront app.
+Connect it to a custom app proxy or theme extension:
+
+1. **App proxy** – In the Shopify Partner dashboard, point the proxy URL to the
+   server endpoint. Shopify automatically signs requests with
+   `X-Shopify-Hmac-Sha256` using the shared secret you configure above.
+2. **Theme app extension** – Issue a `fetch` call from your extension block:
+
+   ```javascript
+   fetch('https://your-server.example.com', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       'X-Shopify-Hmac-Sha256': Shopify.context.hmac,
+     },
+     body: JSON.stringify({
+       intent: 'shipping_options',
+       customer_locale: Shopify.locale,
+       context: { days: 3 }
+     })
+   })
+     .then((res) => res.json())
+     .then((payload) => {
+       renderAssistantResponse(payload.reply);
+     });
+   ```
+
+Incoming Shopify requests expose `locale`, `customer_locale`, or `shop_locale`
+values that the adapter normalizes to the assistant's language codes. The
+response mirrors the CLI payload so you can render it directly in your theme or
+storefront app.
 
 ## Running tests
 

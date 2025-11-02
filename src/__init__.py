@@ -14,6 +14,8 @@ from .integrations import (
     SignatureVerificationError,
     WordPressWebhookAdapter,
 )
+from .servers import main as serve_cli
+from .servers import serve_shopify, serve_wordpress
 
 __all__ = [
     "IntegrationError",
@@ -24,6 +26,9 @@ __all__ = [
     "ShopifyAppProxyAdapter",
     "SignatureVerificationError",
     "WordPressWebhookAdapter",
+    "serve_cli",
+    "serve_shopify",
+    "serve_wordpress",
     "build_default_assistant",
     "demo_conversation",
 ]
