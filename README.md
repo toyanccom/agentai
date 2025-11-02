@@ -7,9 +7,10 @@ regional teams.
 
 ## Key capabilities
 
-- **Language-aware responses** – Ships with curated answers in English,
-  Spanish, Mandarin Chinese, and French for high-volume intents such as order
-  status, shipping options, return policy, and agent availability.
+- **Language-aware responses** – Ships with curated answers across the ten most
+  widely used languages (Arabic, Bengali, English, French, Hindi, Mandarin
+  Chinese, Portuguese, Russian, Spanish, and Urdu) for high-volume intents such
+  as order status, shipping options, return policy, and agent availability.
 - **Graceful fallbacks** – Politely prompts for clarification when the bot does
   not understand an intent and falls back to a primary language when a
   translation is unavailable.
@@ -44,6 +45,8 @@ satisfaction, and frees human agents to focus on edge cases.
        'english': 'Your order A1234 is currently on the way. You can expect delivery by May 18.',
        'spanish': 'Los artículos pueden devolverse dentro de 30 días en su estado original para un reembolso.',
        'mandarin': '我们提供标准和快速配送服务。快速配送可在 3 天内送达。',
+       'arabic': 'نقدم شحنًا عاديًا وسريعًا. تصل الشحنات السريعة خلال 3 أيام.',
+       'hindi': 'हमारे समर्थन एजेंट इस सहायक के माध्यम से 24/7 उपलब्ध हैं।',
        'fallback': "I'm sorry, I didn't understand that request. Could you rephrase it?"
    }
    ```
@@ -62,13 +65,19 @@ satisfaction, and frees human agents to focus on edge cases.
      "language": "es",
      "response": "Tu pedido A1234 está actualmente en camino. La entrega está prevista para 18 de mayo.",
      "supported_languages": [
+       "ar",
+       "bn",
        "en",
        "es",
        "fr",
+       "hi",
+       "pt",
+       "ru",
+       "ur",
        "zh"
      ]
-   }
-   ```
+  }
+  ```
 
 ## Running tests
 

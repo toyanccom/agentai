@@ -18,9 +18,10 @@ def test_render_keeps_missing_placeholders():
 
 def test_default_responses_cover_core_languages():
     assistant = build_default_assistant()
+    expected_languages = {"ar", "bn", "en", "es", "fr", "hi", "pt", "ru", "ur", "zh"}
     for intent in ("order_status", "shipping_options", "return_policy", "store_hours"):
         languages = assistant.supported_languages(intent)
-        assert {"en", "es", "zh", "fr"}.issubset(languages)
+        assert expected_languages.issubset(set(languages))
 
 
 def test_fallback_language_used_when_translation_missing():
@@ -41,3 +42,5 @@ def test_demo_conversation_serializable():
     serialized = json.dumps(conversation, ensure_ascii=False)
     assert "A1234" in serialized
     assert "Lo siento" not in serialized
+    assert "arabic" in conversation
+    assert "urdu" in conversation

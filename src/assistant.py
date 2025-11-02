@@ -43,7 +43,9 @@ class MultilingualSupportAssistant:
         Optional pre-populated mapping with the schema
         ``{intent: {language_code: ResponseTemplate}}``.  The assistant ships
         with a compact set of defaults that cover order status, shipping, and
-        return questions across English, Spanish, Mandarin Chinese, and French.
+        return questions across the ten most commonly spoken languages: Arabic,
+        Bengali, English, French, Hindi, Mandarin Chinese, Portuguese, Russian,
+        Spanish, and Urdu.
     fallback_language:
         ISO language code used whenever a translation for the requested
         language is missing.
@@ -131,6 +133,12 @@ def _build_default_responses() -> Dict[str, Dict[str, ResponseTemplate]]:
                 "es": "Tu pedido {order_id} está actualmente {status}. La entrega está prevista para {eta}.",
                 "zh": "您的订单 {order_id} 目前处于 {status} 状态，预计在 {eta} 送达。",
                 "fr": "Votre commande {order_id} est actuellement {status}. La livraison est prévue pour {eta}.",
+                "hi": "आपका ऑर्डर {order_id} वर्तमान में {status} है। डिलीवरी {eta} तक अपेक्षित है।",
+                "ar": "طلبك {order_id} حاليًا {status}. من المتوقع التسليم بحلول {eta}.",
+                "bn": "আপনার অর্ডার {order_id} বর্তমানে {status} রয়েছে। {eta} এর মধ্যে ডেলিভারি আশা করুন।",
+                "pt": "Seu pedido {order_id} está atualmente {status}. A entrega está prevista para {eta}.",
+                "ru": "Ваш заказ {order_id} сейчас {status}. Доставка ожидается к {eta}.",
+                "ur": "آپ کا آرڈر {order_id} اس وقت {status} ہے۔ متوقع ترسیل {eta} تک ہے۔",
             }
         ),
         "shipping_options": wrap(
@@ -139,6 +147,12 @@ def _build_default_responses() -> Dict[str, Dict[str, ResponseTemplate]]:
                 "es": "Ofrecemos envíos estándar y exprés. Las entregas exprés llegan en {days} días.",
                 "zh": "我们提供标准和快速配送服务。快速配送可在 {days} 天内送达。",
                 "fr": "Nous proposons une livraison standard et express. L'express arrive sous {days} jours.",
+                "hi": "हम मानक और एक्सप्रेस शिपिंग प्रदान करते हैं। एक्सप्रेस डिलीवरी {days} दिनों के भीतर पहुँचती है।",
+                "ar": "نقدم شحنًا عاديًا وسريعًا. تصل الشحنات السريعة خلال {days} أيام.",
+                "bn": "আমরা স্ট্যান্ডার্ড এবং এক্সপ্রেস শিপিং অফার করি। এক্সপ্রেস ডেলিভারি {days} দিনের মধ্যে পৌঁছে যায়।",
+                "pt": "Oferecemos envio padrão e expresso. Entregas expressas chegam em {days} dias.",
+                "ru": "Мы предлагаем стандартную и экспресс-доставку. Экспресс-заказы прибывают в течение {days} дней.",
+                "ur": "ہم معیاری اور ایکسپریس شپنگ فراہم کرتے ہیں۔ ایکسپریس ترسیل {days} دنوں میں پہنچتی ہے۔",
             }
         ),
         "return_policy": wrap(
@@ -147,6 +161,12 @@ def _build_default_responses() -> Dict[str, Dict[str, ResponseTemplate]]:
                 "es": "Los artículos pueden devolverse dentro de {window} días en su estado original para un reembolso.",
                 "zh": "商品可在 {window} 天内保持完好进行退货退款。",
                 "fr": "Les articles peuvent être retournés sous {window} jours dans leur état d'origine pour un remboursement.",
+                "hi": "सामान को {window} दिनों के भीतर मूल स्थिति में लौटाकर धनवापसी प्राप्त की जा सकती है।",
+                "ar": "يمكن إرجاع العناصر خلال {window} يومًا بحالتها الأصلية لاسترداد الأموال.",
+                "bn": "আইটেমগুলি {window} দিনের মধ্যে মূল অবস্থায় ফেরত দিয়ে অর্থ ফেরত পাওয়া যায়।",
+                "pt": "Os itens podem ser devolvidos dentro de {window} dias em seu estado original para reembolso.",
+                "ru": "Товары можно вернуть в течение {window} дней в первоначальном состоянии для возврата средств.",
+                "ur": "اشیاء کو {window} دنوں کے اندر اصل حالت میں واپس کر کے رقم واپس لی جا سکتی ہے۔",
             }
         ),
         "store_hours": wrap(
@@ -155,6 +175,12 @@ def _build_default_responses() -> Dict[str, Dict[str, ResponseTemplate]]:
                 "es": "Nuestros agentes de soporte están disponibles 24/7 mediante este asistente.",
                 "zh": "我们的支持团队通过此助手提供全天候服务。",
                 "fr": "Nos agents d'assistance sont disponibles 24h/24 et 7j/7 via cet assistant.",
+                "hi": "हमारे समर्थन एजेंट इस सहायक के माध्यम से 24/7 उपलब्ध हैं।",
+                "ar": "وكلاء الدعم لدينا متاحون على مدار الساعة عبر هذا المساعد.",
+                "bn": "আমাদের সহায়তা এজেন্টরা এই সহকারীর মাধ্যমে ২৪/৭ উপলব্ধ।",
+                "pt": "Nossos agentes de suporte estão disponíveis 24/7 por meio deste assistente.",
+                "ru": "Наши специалисты поддержки доступны круглосуточно через этого помощника.",
+                "ur": "ہمارے معاون ایجنٹس اس اسسٹنٹ کے ذریعے 24/7 دستیاب ہیں۔",
             }
         ),
     }
@@ -165,6 +191,12 @@ _CLARIFICATION_MESSAGES: Dict[str, str] = {
     "es": "Lo siento, no entendí la solicitud. ¿Podrías reformularla?",
     "zh": "抱歉，我未能理解您的请求。可以换种说法吗？",
     "fr": "Je suis désolé, je n'ai pas compris votre demande. Pourriez-vous la reformuler ?",
+    "hi": "मुझे क्षमा करें, मैं उस अनुरोध को समझ नहीं पाया। क्या आप इसे दोबारा कह सकते हैं?",
+    "ar": "عذرًا، لم أفهم هذا الطلب. هل يمكن إعادة صياغته؟",
+    "bn": "দুঃখিত, আমি সেই অনুরোধটি বুঝতে পারিনি। অনুগ্রহ করে আবার বলবেন?",
+    "pt": "Desculpe, não entendi esse pedido. Poderia reformular?",
+    "ru": "Извините, я не понял этот запрос. Не могли бы вы переформулировать?",
+    "ur": "معذرت، میں اس درخواست کو نہیں سمجھ سکا۔ کیا آپ اسے دوبارہ بیان کر سکتے ہیں؟",
 }
 
 
@@ -187,6 +219,24 @@ def demo_conversation() -> Mapping[str, str]:
         ),
         "mandarin": assistant.respond(
             "shipping_options", "zh", days=3
+        ),
+        "arabic": assistant.respond(
+            "shipping_options", "ar", days=3
+        ),
+        "hindi": assistant.respond(
+            "store_hours", "hi"
+        ),
+        "bengali": assistant.respond(
+            "order_status", "bn", order_id="A1234", status="পথে", eta="১৮ মে"
+        ),
+        "portuguese": assistant.respond(
+            "return_policy", "pt", window=30
+        ),
+        "russian": assistant.respond(
+            "order_status", "ru", order_id="A1234", status="в пути", eta="18 мая"
+        ),
+        "urdu": assistant.respond(
+            "store_hours", "ur"
         ),
         "fallback": assistant.respond("loyalty_program", "de"),
     }
