@@ -79,6 +79,80 @@ satisfaction, and frees human agents to focus on edge cases.
   }
   ```
 
+## Embedding in WordPress
+
+Use the `WordPressWebhookAdapter` to expose the assistant through a lightweight
+Python endpoint that your WordPress site can call from a custom plugin or a
+no-code automation tool like WP Webhooks.
+
+```python
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+from src import WordPressWebhookAdapter
+
+adapter = WordPressWebhookAdapter(shared_secret="super-secret-token")
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+        response = adapter.dispatch(body, headers=self.headers)
+
+        payload = response.to_http()
+        self.send_response(payload["status_code"])
+        for header, value in payload["headers"].items():
+            self.send_header(header, value)
+        self.end_headers()
+        self.wfile.write(payload["body"].encode("utf-8"))
+
+
+if __name__ == "__main__":
+    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+```
+
+Configure your WordPress automation to send a JSON payload with `intent`,
+`language` (or `locale`), and optional `context` values. The shared secret is
+used to sign requests via the `X-Assistant-Signature` header and prevents
+unauthorized calls.
+
+## Embedding in Shopify
+
+Shopify app proxies and theme extensions can call the
+`ShopifyAppProxyAdapter` in a similar fashion. Shopify signs requests via the
+`X-Shopify-Hmac-Sha256` header so you only need to provide the shared secret
+issued to your custom app.
+
+```python
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+from src import ShopifyAppProxyAdapter
+
+adapter = ShopifyAppProxyAdapter(shared_secret="shopify-shared-secret")
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+        response = adapter.dispatch(body, headers=self.headers)
+
+        payload = response.to_http()
+        self.send_response(payload["status_code"])
+        for header, value in payload["headers"].items():
+            self.send_header(header, value)
+        self.end_headers()
+        self.wfile.write(payload["body"].encode("utf-8"))
+
+
+if __name__ == "__main__":
+    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+```
+
+Incoming Shopify requests include `locale`, `customer_locale`, or
+`shop_locale` fields that are automatically mapped to the assistant's
+language codes. Provide the request context (for example, `{"order_id": "A1"}`)
+to personalize the reply. The response body mirrors the CLI payload and can be
+rendered directly within your theme or storefront app.
+
 ## Running tests
 
 ```bash
